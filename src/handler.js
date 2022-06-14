@@ -52,7 +52,7 @@ const addBookHandler = (request, response) => {
         .code(500);
 };
 
-const getAllBooksHandler = (_, response) => {
+const getAllBooksHandler = (request, response) => {
     response.response().code(200);
 
     if (books === undefined) {
@@ -64,14 +64,45 @@ const getAllBooksHandler = (_, response) => {
         });
     }
 
+    let result = [];
+    let tempResult = [];
+
+    const queryParams = request.query;
+
+    if (queryParams.name !== undefined && queryParams.name !== null && queryParams.name !== "") {
+        tempResult = books.filter((book) => book.name.toLowerCase().indexOf(queryParams.name.toLowerCase()) > -1);
+    }
+
+    if (queryParams.reading !== undefined && queryParams.reading !== null) {
+        const convertToBoolean = queryParams.reading === "0" ? false : true;
+        tempResult = books.filter((book) => book.reading === convertToBoolean);
+    }
+
+    if (queryParams.finished !== undefined && queryParams.finished !== null) {
+        const convertToBoolean = queryParams.finished === "0" ? false : true;
+        tempResult = books.filter((book) => book.finished === convertToBoolean);
+    }
+
+    if (tempResult === undefined) {
+        result = books.map((book) => ({
+            id: book.id,
+            name: book.name,
+            publisher: book.publisher,
+        }));
+    } else {
+        tempResult.forEach((res) => {
+            result.push({
+                id: res.id,
+                name: res.name,
+                publisher: res.publisher,
+            });
+        });
+    }
+
     return {
         status: "success",
         data: {
-            books: books.map((book) => ({
-                id: book.id,
-                name: book.name,
-                publisher: book.publisher,
-            })),
+            books: result,
         },
     };
 };
