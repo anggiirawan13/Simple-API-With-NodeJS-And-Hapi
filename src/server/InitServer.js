@@ -1,0 +1,22 @@
+import { server as _server } from "@hapi/hapi";
+import bookController from "../controller/books/BooksController.js";
+
+const init = async() => {
+    const server = _server({
+        port: 5000,
+        host: "localhost",
+        routes: {
+            cors: {
+                origin: ["*"],
+            },
+        },
+    });
+
+    server.route(bookController);
+
+    await server.start();
+
+    console.log(`Server berjalan pada ${server.info.uri}`);
+};
+
+init();
